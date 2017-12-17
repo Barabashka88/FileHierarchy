@@ -17,5 +17,10 @@ namespace FileHierarchy
         {
             _children.Add(folder);
         }
+
+        public List<Entry> GetChildren()
+        {
+            return _children;
+        }
     }
 }

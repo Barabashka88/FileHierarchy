@@ -5,8 +5,8 @@ namespace FileHierarchy
     [Serializable]
     abstract class Entry
     {
-        protected string Name;
-        
+        protected string Name { get; }
+
         public Entry(string name)
         {
             Name = name;

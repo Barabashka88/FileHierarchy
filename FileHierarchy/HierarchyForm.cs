@@ -20,7 +20,8 @@ namespace FileHierarchy
                 string folderName = new DirectoryInfo(path).Name;
                 Folder root = new Folder(folderName);
                 AddToHierarchy(path, root);
-                MessageBox.Show(@"Your folder has been serialized \n Its time to save it", @"Completed", MessageBoxButtons.OK);
+                MessageBox.Show("Your folder has been saved and serialized. \n Its time to save it.", @"Completed!",
+                    MessageBoxButtons.OK);
                 SaveToFile(root);
             }
         }
@@ -35,7 +36,7 @@ namespace FileHierarchy
             }
             else
             {
-                MessageBox.Show($@"Your folder ({folder.GetName()}) has not been saved");
+                MessageBox.Show($@"Your folder ({folder.GetName()}) has not been saved.");
             }
         }
 
@@ -48,15 +49,24 @@ namespace FileHierarchy
                 formatter.Serialize(fileStream, folder);
             }
         }
+
         private Folder DeserializeFolder(string fileName)
         {
             BinaryFormatter formatter = new BinaryFormatter();
-
-            using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
+            try
             {
-                Folder deserializedFolder = (Folder)formatter.Deserialize(fileStream);
-                return deserializedFolder;
+                using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
+                {
+                    var folder = (Folder)formatter.Deserialize(fileStream);
+                    return folder;
+                }
             }
+            catch (Exception e)
+            {
+                MessageBox.Show($@"There is an error while parsing file into folder: {e.Message}.", "An error occurred");
+                return null;
+            }
+
         }
 
         private void AddToHierarchy(string path, Folder folder)
@@ -82,6 +92,57 @@ namespace FileHierarchy
                     File file = new File(fileName, fileContent);
                     folder.Add(file);
                 }
+            }
+        }
+
+        private void chooseDeserializeFileButton_Click(object sender, EventArgs e)
+        {
+            openFileDialog.FileName = "";
+            openFileDialog.Filter = @"txt files (*.txt)|*.txt|dat files (*.dat)|*.dat|All files (*.*)|*.*";
+            openFileDialog.FilterIndex = 3;
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                Folder folder = DeserializeFolder(openFileDialog.FileName);
+                if (folder != null)
+                {
+                    MessageBox.Show("Now, lets choose a folder where unpack.", "Completed!");
+                    if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        string path = Path.Combine(folderBrowserDialog.SelectedPath, folder.GetName());
+                        //string path = folderBrowserDialog.SelectedPath;
+                        if (!Directory.Exists(path))
+                        {
+                            // Directory.CreateDirectory(path);
+                            UnpackHierarchy(folderBrowserDialog.SelectedPath, folder);
+                            MessageBox.Show("All completed successfully.\nOpen and check in File Explorer.","Completed");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Can't unpack folder here.\nThe folder with same name already exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void UnpackHierarchy(string path, Entry entry)
+        {
+            string newPath = Path.Combine(path, entry.GetName());
+
+            if (entry is Folder folder)
+            {
+                Directory.CreateDirectory(newPath);
+
+                foreach (var subEntry in folder.GetChildren())
+                {
+                    UnpackHierarchy(newPath, subEntry);
+                }
+            }
+            else if (entry is File file)
+            {
+                System.IO.File.Create(newPath).Close();
+                System.IO.File.WriteAllText(newPath, file.GetContent());
+
             }
         }
     }

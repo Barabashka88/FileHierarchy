@@ -6,6 +6,7 @@ namespace FileHierarchy
     class File : Entry
     {
         private string _content;
+
         public File(string name, string content)
             : base(name)
         {
@@ -15,6 +16,11 @@ namespace FileHierarchy
         public override void Add(Entry file)
         {
             throw new NotImplementedException();
+        }
+
+        public string GetContent()
+        {
+            return _content;
         }
     }
 }
