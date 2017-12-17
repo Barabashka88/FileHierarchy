@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FileHierarchy
 {
@@ -14,6 +10,11 @@ namespace FileHierarchy
         public Entry(string name)
         {
             Name = name;
+        }
+
+        public string GetName()
+        {
+            return Name;
         }
 
         public abstract void Add(Entry entry);
