@@ -18,27 +18,35 @@ namespace FileHierarchy
 
         private void chooseSerializeFolderButton_Click(object sender, EventArgs e)
         {
-          if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
-                string[] files = Directory.GetFileSystemEntries(folderBrowserDialog.SelectedPath);
-                //string[] files = Directory.GetFileSystemEntries("E:\\Папка найкращого хлопця в світі)\\TestFolder");
-                var tet = "";
-                foreach (var elem in files)
-                {
-                    FileAttributes atr = File.GetAttributes(elem);
-                    if ((atr & FileAttributes.Directory) == FileAttributes.Directory)
-                        MessageBox.Show(elem+"  Is a directory ");
-                    else
-                        MessageBox.Show(elem + "   Is a file");
-
-                }
-                MessageBox.Show("   Files found: " + files.Length, "Message");
+                string path = folderBrowserDialog.SelectedPath;
+                string folderName = new DirectoryInfo(path).Name;
+                Folder root = new Folder(folderName);
+                AddToHierarchy(path, root);
             }
         }
 
-        private void GetAllEnttriesInFolder(string path)
+        private void AddToHierarchy(string path, Folder folder)
         {
-            string[] files = Directory.GetFileSystemEntries(path);
+            string[] foderEntriesPaths = Directory.GetFileSystemEntries(path);
+            if (foderEntriesPaths.Length != 0)
+            {
+                foreach (var subEntryPath in foderEntriesPaths)
+                {
+                    FileAttributes atr = System.IO.File.GetAttributes(subEntryPath);
+                    if ((atr & FileAttributes.Directory) == FileAttributes.Directory)
+                    {
+                        Folder subFolder = new Folder(new DirectoryInfo(subEntryPath).Name);
+                        folder.Add(subFolder);
+                        AddToHierarchy(subEntryPath, subFolder);
+                    }
+                    else
+                    {
+                        folder.Add(new File(new FileInfo(subEntryPath).Name, System.IO.File.ReadAllText(subEntryPath)));
+                    }
+                }
+            }
         }
     }
 }
