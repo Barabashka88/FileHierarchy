@@ -28,12 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.chooseSerializeFolderButton = new System.Windows.Forms.Button();
+            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.SuspendLayout();
+            // 
+            // chooseSerializeFolderButton
+            // 
+            this.chooseSerializeFolderButton.Location = new System.Drawing.Point(13, 13);
+            this.chooseSerializeFolderButton.Name = "chooseSerializeFolderButton";
+            this.chooseSerializeFolderButton.Size = new System.Drawing.Size(195, 45);
+            this.chooseSerializeFolderButton.TabIndex = 0;
+            this.chooseSerializeFolderButton.Text = "Folder for serialize";
+            this.chooseSerializeFolderButton.UseVisualStyleBackColor = true;
+            this.chooseSerializeFolderButton.Click += new System.EventHandler(this.chooseSerializeFolderButton_Click);
+            // 
+            // Form1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(220, 224);
+            this.Controls.Add(this.chooseSerializeFolderButton);
+            this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
+            this.ResumeLayout(false);
+
         }
 
         #endregion
+        private System.Windows.Forms.Button chooseSerializeFolderButton;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
     }
 }
 
