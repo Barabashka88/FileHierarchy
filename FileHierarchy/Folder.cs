@@ -4,23 +4,18 @@ using System.Collections.Generic;
 namespace FileHierarchy
 {
     [Serializable]
-    class Folder :Entry
+    class Folder : Entry
     {
-        private List<Entry> _children = new List<Entry>();
+        public List<Entry> Children { get; }
 
-        public Folder(string name):base(name)
+        public Folder(string name) : base(name)
         {
-                
+            Children = new List<Entry>();
         }
 
         public override void Add(Entry folder)
         {
-            _children.Add(folder);
-        }
-
-        public List<Entry> GetChildren()
-        {
-            return _children;
+            Children.Add(folder);
         }
     }
 }

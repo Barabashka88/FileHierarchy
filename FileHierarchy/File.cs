@@ -5,22 +5,17 @@ namespace FileHierarchy
     [Serializable]
     class File : Entry
     {
-        private string _content;
+        public string Content { get; }
 
         public File(string name, string content)
             : base(name)
         {
-            _content = content;
+            Content = content;
         }
 
         public override void Add(Entry file)
         {
             throw new NotImplementedException();
-        }
-
-        public string GetContent()
-        {
-            return _content;
         }
     }
 }

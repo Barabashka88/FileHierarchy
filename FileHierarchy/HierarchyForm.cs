@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FileHierarchy
@@ -14,29 +15,34 @@ namespace FileHierarchy
 
         private void chooseSerializeFolderButton_Click(object sender, EventArgs e)
         {
+            folderBrowserDialog.Description = "Choose folder for pack and serialize.";
+            
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
+                Cursor.Current = Cursors.WaitCursor;
                 string path = folderBrowserDialog.SelectedPath;
                 string folderName = new DirectoryInfo(path).Name;
                 Folder root = new Folder(folderName);
                 AddToHierarchy(path, root);
-                MessageBox.Show("Your folder has been saved and serialized. \n Its time to save it.", @"Completed!",
+                MessageBox.Show("Your folder has been saved and serialized. \n Its time to save it.", "Completed!",
                     MessageBoxButtons.OK);
                 SaveToFile(root);
+                Cursor.Current = Cursors.Arrow;
             }
         }
 
         private void SaveToFile(Folder folder)
         {
-            saveFileDialog.FileName = folder.GetName();
-            saveFileDialog.Filter = @"txt files (*.txt)|*.txt|dat files (*.dat)|*.dat|All files (*.*)|*.*";
+            saveFileDialog.FileName = folder.Name;
+            saveFileDialog.Filter = "txt files (*.txt)|*.txt|dat files (*.dat)|*.dat|All files (*.*)|*.*";
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 SerializeFolder(folder, saveFileDialog.FileName);
+                MessageBox.Show("File saved.", "Completed");
             }
             else
             {
-                MessageBox.Show($@"Your folder ({folder.GetName()}) has not been saved.");
+                MessageBox.Show($"Your folder ({folder.Name}) has not been saved.");
             }
         }
 
@@ -63,13 +69,12 @@ namespace FileHierarchy
             }
             catch (Exception e)
             {
-                MessageBox.Show($@"There is an error while parsing file into folder: {e.Message}.", "An error occurred");
+                MessageBox.Show($"There is an error while parsing file into folder: {e.Message}.", "An error occurred");
                 return null;
             }
-
         }
 
-        private void AddToHierarchy(string path, Folder folder)
+        private async Task AddToHierarchy(string path, Folder folder)
         {
             string[] foderEntriesPaths = Directory.GetFileSystemEntries(path);
             if (foderEntriesPaths.Length == 0)
@@ -83,7 +88,7 @@ namespace FileHierarchy
                 {
                     Folder subFolder = new Folder(new DirectoryInfo(subEntryPath).Name);
                     folder.Add(subFolder);
-                    AddToHierarchy(subEntryPath, subFolder);
+                    await AddToHierarchy(subEntryPath, subFolder);
                 }
                 else
                 {
@@ -98,7 +103,7 @@ namespace FileHierarchy
         private void chooseDeserializeFileButton_Click(object sender, EventArgs e)
         {
             openFileDialog.FileName = "";
-            openFileDialog.Filter = @"txt files (*.txt)|*.txt|dat files (*.dat)|*.dat|All files (*.*)|*.*";
+            openFileDialog.Filter = "txt files (*.txt)|*.txt|dat files (*.dat)|*.dat|All files (*.*)|*.*";
             openFileDialog.FilterIndex = 3;
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -108,11 +113,9 @@ namespace FileHierarchy
                     MessageBox.Show("Now, lets choose a folder where unpack.", "Completed!");
                     if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                     {
-                        string path = Path.Combine(folderBrowserDialog.SelectedPath, folder.GetName());
-                        //string path = folderBrowserDialog.SelectedPath;
+                        string path = Path.Combine(folderBrowserDialog.SelectedPath, folder.Name);
                         if (!Directory.Exists(path))
                         {
-                            // Directory.CreateDirectory(path);
                             UnpackHierarchy(folderBrowserDialog.SelectedPath, folder);
                             MessageBox.Show("All completed successfully.\nOpen and check in File Explorer.","Completed");
                         }
@@ -127,13 +130,13 @@ namespace FileHierarchy
 
         private void UnpackHierarchy(string path, Entry entry)
         {
-            string newPath = Path.Combine(path, entry.GetName());
+            string newPath = Path.Combine(path, entry.Name);
 
             if (entry is Folder folder)
             {
                 Directory.CreateDirectory(newPath);
 
-                foreach (var subEntry in folder.GetChildren())
+                foreach (var subEntry in folder.Children)
                 {
                     UnpackHierarchy(newPath, subEntry);
                 }
@@ -141,8 +144,7 @@ namespace FileHierarchy
             else if (entry is File file)
             {
                 System.IO.File.Create(newPath).Close();
-                System.IO.File.WriteAllText(newPath, file.GetContent());
-
+                System.IO.File.WriteAllText(newPath, file.Content);
             }
         }
     }

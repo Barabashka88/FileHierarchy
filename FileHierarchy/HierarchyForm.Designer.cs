@@ -68,6 +68,9 @@
             this.ClientSize = new System.Drawing.Size(220, 224);
             this.Controls.Add(this.chooseDeserializeFileButton);
             this.Controls.Add(this.chooseSerializeFolderButton);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "HierarchyForm";
             this.Text = "Hierarchy";
             this.ResumeLayout(false);
