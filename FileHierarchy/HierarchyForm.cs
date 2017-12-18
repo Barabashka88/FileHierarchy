@@ -128,7 +128,7 @@ namespace FileHierarchy
             }
         }
 
-        private void UnpackHierarchy(string path, Entry entry)
+        private async  Task UnpackHierarchy(string path, Entry entry)
         {
             string newPath = Path.Combine(path, entry.Name);
 
